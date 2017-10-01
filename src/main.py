@@ -1,14 +1,13 @@
+import argparse
 import asyncio
 import importlib
-import re
+import json
+import os
+import sys
 import traceback
 from string import whitespace
 
 import discord
-import sys
-import json
-import argparse
-import os
 
 client = discord.Client()
 
@@ -50,6 +49,7 @@ commands += [help_cmd]
 
 class Config(object):
     def __init__(self, **kwargs):
+        self.google = kwargs['google']
         self.token = kwargs['token']
         self.postfix = kwargs.get('postfix', '...')
 
@@ -136,7 +136,7 @@ def load_modules(dir='modules', module='modules') -> tuple:
             total += 1
             print('Loading module: %s' % (module + '.' + file), flush=True)
             try:
-                importlib.import_module('%s.%s' % (module, file)).setup(commands, client)
+                importlib.import_module('%s.%s' % (module, file)).setup(commands, client, config)
             except KeyboardInterrupt:
                 raise
             except Exception as e:
@@ -154,6 +154,7 @@ if __name__ == '__main__':
     args.add_argument('config_file', type=open, help='Config file in json format.')
     ns = args.parse_args(sys.argv[1:])
     config = json.load(ns.config_file)
+    config = Config(**config)
     print('Config: %s' % str(config))
     print()
     print('Loading modules')
@@ -168,5 +169,4 @@ if __name__ == '__main__':
             line = input("Start anyway? (Y/N)")
         if line.lower() == 'n':
             sys.exit(1)
-    config = Config(**config)
     client.run(config.token, bot=True)
