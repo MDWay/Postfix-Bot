@@ -32,7 +32,6 @@ def get_youtube_info(args, author, channel, message):
     regex = re.compile(r"^https?://(www\.)?(youtube\.com/watch/?\?v=|youtu\.be/)(?P<id>[a-z\-_0-9]+)$", re.IGNORECASE)
     id = regex.search(args[0]).group("id")
     json_data = requests.get(YOUTUBE_VIDEOS_LIST.format(id)).json()
-    print(json_data)
     entry = json_data['items'][0]
     content_details = entry['contentDetails']
     statistics = entry['statistics']
